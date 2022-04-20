@@ -1,8 +1,6 @@
 // Aluno: Hugo Folloni Guarilha
 // DRE: 121085854
 
-// Merge Sort não está funcionando direito, enquanto os outros estão!
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -30,7 +28,7 @@ int main ( int argc, char *argv[] ){
     else if( argc  == 4 ){
         // Caso seja escolhido -m, o algoritmo é o Merge Sort.
         if( strcmp(argv[3], "-m") == 0){
-            mergeSort(vetor, 0, vetorSize - 1);
+            mergeSort(vetor, 0, vetorSize);
             printVetor(vetor, vetorSize, "merge-sort");
         }
         // Caso seja escolhido, o algoritmo é o Quick Sort.
@@ -47,26 +45,25 @@ int main ( int argc, char *argv[] ){
     }
 }
 
+
 int mergeSort(int *vetor, int inicio, int fim){
-    if(inicio > fim){
-        return;
+    if(inicio < fim){
+        int meio = (inicio + fim) / 2;
+        mergeSort(vetor, inicio, meio);
+        mergeSort(vetor, meio + 1, fim);
+        merge(vetor, inicio, meio, fim);
     }
-    int meio = (inicio + fim) / 2;
-    mergeSort(vetor, inicio, meio);
-    mergeSort(vetor, meio + 1, fim);
-    merge(vetor, inicio, meio, fim);
-    
 }
 
 int merge(int *vetor, int inicio, int meio, int fim){
     int vetorTempSize = fim - inicio;
     int *vetorTemp = (int*) malloc(vetorTempSize * sizeof(int));
     int i = inicio;
-    int j = meio;
+    int j = meio + 1;
     int pos = inicio;
-    
+
     while(i <= meio && j <= fim){
-        if(vetor[i] <= vetor[j]){
+        if(vetor[i] < vetor[j]){
             vetorTemp[pos] = vetor[i];
             i++;
         }
@@ -81,14 +78,14 @@ int merge(int *vetor, int inicio, int meio, int fim){
         i++;
         pos++;
     }
-    while(j < fim){
+    while(j <= fim){
         vetorTemp[pos] = vetor[j];
         j++;
         pos++;
     }
-    for(int i = inicio; i < fim; i++){
+    for(int i = inicio; i <= fim; i++){
         vetor[i] = vetorTemp[i];
-    }   
+    }
 
     free(vetorTemp);
 } 
