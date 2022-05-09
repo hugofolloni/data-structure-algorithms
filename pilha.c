@@ -20,7 +20,7 @@ struct Pilha {
 	float *pElem;
 };
 
-void criarpilha( struct Pilha *p, int c ){
+void criar( struct Pilha *p, int c ){
 
     p->pElem = (float*) malloc (c * sizeof(float));
     p->topo = -1;
@@ -53,7 +53,7 @@ int adicionar(struct Pilha *p, float item){
         p->topo++;
         p->pElem[p->topo] = item;
         return 1;
-        printf("Adicionei item %s\n", item);
+        printf("Adicionei item %f\n", item);
     }
     else{
         return 0;
@@ -92,6 +92,7 @@ int runExpression(char* expressao, struct Pilha *pilhaNumeros, struct Pilha *pil
     printf("Cheguei!");
 
     for(int i = 0; i < 80; i++){
+        printf("To aqui");
         char c = expressao[i];
         if((c != '*') && (c != '+') && (c != '-') && (c != '/') && (c != ' ')){
             adicionar(pilhaNumeros, c);
@@ -113,8 +114,8 @@ int main(){
     
     struct Pilha *numeros, *operadores;
 
-    criarpilha(&numeros, 5);
-    criarpilha(&operadores, 5);
+    criar(&numeros, 5);
+    criar(&operadores, 5);
 
     char expressao[80]= " ";
 
@@ -130,3 +131,5 @@ int main(){
 
 
 
+
+// O algoritmo não consegue chegar na função runExoression -> nunca é printado o chegeuei!
