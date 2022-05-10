@@ -7,11 +7,11 @@ float operacao(float a, float b, char operador){
         case 43: 
             return a + b;
         case 45:
-            return a - b;
+            return b - a;
         case 42:
             return a * b;
         case 47:
-            return a / b;
+            return b / a;
     }
 };
 
@@ -31,6 +31,10 @@ class Pilha{
         void runOperators(string expressao);
         void runNumbers(string expressao);
         void showPilha();
+        float resolverPilha(Pilha numeros, Pilha operadores);
+        float resolverPilhaLinear(Pilha numeros, Pilha operadores);
+        Pilha inverterPilha();
+        bool existeNaPilha(char item);
 };
 
 Pilha:: Pilha(){
@@ -131,28 +135,121 @@ void Pilha:: runOperators(string expressao){
     }
 };
 
-float calcular(Pilha numeros, Pilha operadores){
-    float resultado = 0;
-    float a = 0;
-    float b = 0;
-    int operador = 0;
-    while(operadores.isEmpty() == 0){
-        a = numeros.retirar();
-        b = numeros.retirar();
-        operador = operadores.retirar();
-        resultado = operacao(a, b, operador);
-        numeros.adicionar(resultado);
-    }
-    return resultado;
-};
+// float calcular(Pilha numeros, Pilha operadores){
+//     float resultado = 0;
+//     float a = 0;
+//     float b = 0;
+//     int operador = 0;
+//     while(operadores.isEmpty() == 0){
+//         a = numeros.retirar();
+//         b = numeros.retirar();
+//         operador = operadores.retirar();
+//         resultado = operacao(a, b, operador);
+//         numeros.adicionar(resultado);
+//     }
+//     return resultado;
+// };
     
 
 void Pilha:: showPilha(){
-    cout<<"\nPilha: ";
     for(int i = 0; i <= topo; i++){
         cout<<pilha[i]<<" ";
     }
 };
+
+float Pilha:: resolverPilha(Pilha numeros, Pilha operadores){
+
+    Pilha pilhaAuxiliar;
+    Pilha operatorAuxiliar;
+
+    float resultado = 0;
+    float a = 0;
+    float b = 0;
+    int operador = 0;
+    while(operadores.isEmpty() == 0){ 
+        cout<<"\n\nMinha pilha numeros esta"<<endl;
+        numeros.showPilha();
+        cout<<"\n\nMinha pilha operadores esta"<<endl;
+        operadores.showPilha();
+        cout<<"\n\nMinha pilha auxiliar esta"<<endl;
+        pilhaAuxiliar.showPilha();
+        cout<<"\n\nMinha pilha operator auxiliar esta"<<endl;
+        operatorAuxiliar.showPilha();
+
+        a = numeros.retirar();
+        b = numeros.retirar();
+        operador = operadores.retirar();
+        if(operador == 42 || operador == 47){
+            resultado = operacao(a, b, operador);
+            pilhaAuxiliar.adicionar(resultado);
+            operatorAuxiliar.adicionar(operadores.retirar());
+        }
+        else{
+            pilhaAuxiliar.adicionar(a);
+            pilhaAuxiliar.adicionar(b);
+            operatorAuxiliar.adicionar(operador);
+        }
+    }
+
+    bool existeMultiplicacao = operatorAuxiliar.existeNaPilha('*');
+    bool existeDivisao = operatorAuxiliar.existeNaPilha('/');
+
+    cout<<existeMultiplicacao<< " "<<existeDivisao<<endl;
+
+    pilhaAuxiliar = pilhaAuxiliar.inverterPilha();
+    operatorAuxiliar = operatorAuxiliar.inverterPilha();
+
+    if(existeMultiplicacao || existeDivisao){
+        resolverPilha(pilhaAuxiliar, operatorAuxiliar);
+    }
+
+
+    return numeros.resolverPilhaLinear(pilhaAuxiliar, operatorAuxiliar);
+};
+
+bool Pilha:: existeNaPilha(char item){
+    for(int i = 0; i <= topo; i++){
+        if(pilha[i] == item){
+            return true;
+        }
+    }
+    return false;
+}
+
+float Pilha:: resolverPilhaLinear(Pilha numeros, Pilha operadores){
+    cout<<"Cheguei na pilha linear"<<endl;
+
+
+    cout<<"\n\n\nAo final no loop temos na pilha de numeros: "<<endl;
+    numeros.showPilha();
+    cout<<"\nAo final no loop temos na pilha de operadores: "<<endl;
+    operadores.showPilha();
+  
+    while(numeros.topo > 0){
+        float a = numeros.retirar();
+        float b = numeros.retirar();
+        int operador = operadores.retirar();
+        float resultado = operacao(a, b, operador);
+        cout<<"\n\nResultado da operacao:"<<a<<" "<<b<<" "<<operador<<" e: "<<resultado<<endl;
+        numeros.adicionar(resultado);
+    }
+    return numeros.retirar();
+};
+
+Pilha Pilha:: inverterPilha(){
+    Pilha pilhaAuxiliar;
+    while(isEmpty() == 0){
+        pilhaAuxiliar.adicionar(retirar());
+    }
+    return pilhaAuxiliar;
+}
+
+// 42 = *
+// 47 = /
+// 43 = +
+// 45 = -
+// 40 = (
+// 41 = )
 
 int main(){
     Pilha numeros;
@@ -162,12 +259,12 @@ int main(){
     // cout<<"\nMe diga sua expressão:";
     // cin>>expressao;
 
-    string expressao = "4 + 5 + 9 + 4 + 2 + 1 + 2";
+    string expressao = "4 * 2 + 3 * 2 - 4 / 2";
 
     numeros.runNumbers(expressao);
     operadores.runOperators(expressao);
 
-    cout<<"Resultado = "<<calcular(numeros, operadores);
+    cout<<"Resultado = "<<numeros.resolverPilha(numeros, operadores);
 };
 
 // O algoritmo consegue calcular expressoes lineares de soma, somente. Falta colocar prioridades e '(', ')'.
