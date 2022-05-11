@@ -1,3 +1,6 @@
+// Aluno: Hugo Folloni Guarilha
+// DRE: 121085854
+
 #include <iostream>
 #include <string.h>
 using namespace std;
@@ -16,6 +19,16 @@ float operacao(float a, float b, char operador){
     return 0;
 };
 
+
+bool existeNoVetor(char item, string vetor){
+    for(int i = 0; i < vetor.length(); i++){
+        if(vetor[i] == item){
+            return true;
+        }
+    }
+    return false;
+}
+
 class Pilha{
     private:
         int capacidade;
@@ -32,6 +45,7 @@ class Pilha{
         void runOperators(string expressao);
         void runNumbers(string expressao);
         void showPilha();
+        void showPilha(char modificador);
         float resolverPilha(Pilha numeros, Pilha operadores);
         float resolverPilhaLinear(Pilha numeros, Pilha operadores);
         Pilha inverterPilha();
@@ -95,16 +109,16 @@ void Pilha:: runNumbers(string expressao){
 
     int pos = 0;
 
-    for(int i = 0; i < expressao.length() + 1; i++){
-        if(expressao[i] == '('){
-            int comeco = i, fim = 0;
-            for(int j = i; j < expressao.length(); j++){
-                if(expressao[j] == ')'){
-                    fim = j;
-                }
-            }
 
-            string miniExp = expressao.substr(comeco + 1, fim - comeco - 1);      
+    for(int i = 0; i < expressao.length() + 1; i++){
+        if(expressao[i] == ')'){
+            int fim = i, comeco = 0;
+            while(expressao[fim] != '('){
+                fim--;
+            }
+            comeco = fim;
+
+            string miniExp = expressao.substr(comeco + 1, i - comeco - 1);      
 
             Pilha miniExpNumero;
             Pilha miniExpOperador;
@@ -115,11 +129,14 @@ void Pilha:: runNumbers(string expressao){
 
             string resultadoMiniPilhaString = to_string(resultadoMiniPilha);
 
-            expressao.replace(comeco, fim - comeco + 1, resultadoMiniPilhaString);
+            expressao.replace(comeco, i - comeco + 1, resultadoMiniPilhaString);
   
             i += resultadoMiniPilhaString.length();
 
         }
+    }
+
+    for(int i = 0; i < expressao.length(); i++){
         if(expressao[i] == '*' || expressao[i] == '/' || expressao[i] == '+' || expressao[i] == '-'){
             posicaoOperadores[pos] = i;
             pos++;
@@ -128,11 +145,15 @@ void Pilha:: runNumbers(string expressao){
 
     int inicioNumero = 0;
 
+    if(existeNoVetor('(', expressao) == 1){
+        return runNumbers(expressao);
+    }
+
     for(int i = 0; i <= pos; i++){
         int posicao = posicaoOperadores[i];
         string miniStr = " ";
         int tamanho = posicao - inicioNumero;
-        if(tamanho > 0){
+        if(tamanho > 1){
             miniStr = expressao.substr(inicioNumero, tamanho);
             adicionar(stof(miniStr));
 
@@ -145,11 +166,9 @@ void Pilha:: runNumbers(string expressao){
 void Pilha:: runOperators(string expressao){
     for(int i = 0; i < expressao.length(); i++){
         if(expressao[i] == '('){
-            int comeco = i, fim = 0;
-            for(int j = i; j < expressao.length(); j++){
-                if(expressao[j] == ')'){
-                    fim = j;
-                }
+            int comeco = i, fim = i;
+            while(expressao[fim] != ')'){
+                fim++;
             }
             i = fim;
         }
@@ -165,6 +184,14 @@ void Pilha:: showPilha(){
     }
 };
 
+void Pilha:: showPilha(char modificador){
+    for(int i = 0; i <= topo; i++){
+        if(modificador == 'o'){
+            cout<<(char) pilha[i]<<" ";
+        }
+    }
+};
+
 float Pilha:: resolverPilha(Pilha numeros, Pilha operadores){
 
     numeros = numeros.inverterPilha();
@@ -177,7 +204,7 @@ float Pilha:: resolverPilha(Pilha numeros, Pilha operadores){
     float a = 0;
     float b = 0;
     int operador = 0;
-    while(operadores.isEmpty() == 0){ 
+    while(numeros.isEmpty() == 0){ 
         if(numeros.topo == 0){
             pilhaAuxiliar.adicionar(numeros.retirar());
             operatorAuxiliar.adicionar(operadores.retirar());
@@ -186,6 +213,9 @@ float Pilha:: resolverPilha(Pilha numeros, Pilha operadores){
             a = numeros.retirar();
             b = numeros.retirar();
             operador = operadores.retirar();
+            if(operador == 0){
+                operador = operadores.retirar();
+            }
             if(operador == 42 || operador == 47){
                 resultado = operacao(a, b, operador);
                 pilhaAuxiliar.adicionar(resultado);
@@ -193,7 +223,12 @@ float Pilha:: resolverPilha(Pilha numeros, Pilha operadores){
             }
             else{
                 pilhaAuxiliar.adicionar(a);
-                numeros.adicionar(b);
+                if(numeros.topo == -1){
+                    pilhaAuxiliar.adicionar(b);
+                }
+                else{
+                    numeros.adicionar(b);
+                }
                 operatorAuxiliar.adicionar((char) operador);
             }
         }
@@ -203,6 +238,8 @@ float Pilha:: resolverPilha(Pilha numeros, Pilha operadores){
     operatorAuxiliar = operatorAuxiliar.inverterPilha();
 
     if(operatorAuxiliar.existeNaPilha('*') == 1 || operatorAuxiliar.existeNaPilha('/') == 1){
+        pilhaAuxiliar = pilhaAuxiliar.inverterPilha();
+        operatorAuxiliar = operatorAuxiliar.inverterPilha();
         return numeros.resolverPilha(pilhaAuxiliar, operatorAuxiliar);
     }
 
@@ -251,8 +288,6 @@ int main(){
     char expressao[80];
     cout<<"\nMe diga sua expressão:\n  ";
     cin.getline(expressao, sizeof(expressao));
-
-    cout<<"\n\nExpressao: "<<expressao<<"\n\n";
 
     numeros.runNumbers(expressao);
     operadores.runOperators(expressao);
