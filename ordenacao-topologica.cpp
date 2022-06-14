@@ -1,95 +1,171 @@
 #include <iostream>
+#include <algorithm>
 
 using namespace std;
 
+bool isNumber(string s){
+    return std::any_of(s.begin(), s.end(), ::isdigit);
+}
+
+class Lista {
+    public:
+        int lista[100];
+        int tamanho;
+        Lista();
+        void inserir(int valor);
+};
+
+class StringArray {
+    public:
+        string strings[100];
+        int tamanho;
+        StringArray();
+        void add(string c);
+        void printArray();
+        Lista parse(int i);
+        Lista handleNumber(string line, int i);
+};
 class Grafo {
-    private:
-        int tamanho;    
-        int populado;
-        int vertices[100];
-        int vizinhos[100];
     public:
-        Grafo(int size);
-        int adicionarVertice(int indice, string item);
-        void printGrafo();
+        int nVertices;
+        int nArestas;
+        Lista listaRelacoes[100];
+        int tamanhoListaRelacoes;
+        void inserirNaLista(Lista lista);
+        Grafo();
+        void parse(StringArray SA);
+        void printRelacoes();
 };
 
-Grafo:: Grafo(int size){
-    tamanho = size;
+
+Lista:: Lista(){
+    tamanho = 0;
+};
+
+void Lista::inserir(int valor){
+    lista[tamanho] = valor;
+    tamanho++;
+};
+
+Grafo:: Grafo(){
+    this->nArestas = 0;
+    this->nVertices = 0;
+    this->tamanhoListaRelacoes = 0;
+};
+
+StringArray:: StringArray(){
+    this->tamanho = 0;
+};
+
+void StringArray:: add(string c){
+    strings[tamanho] = c;
+    tamanho++;
+};
+
+void Grafo:: inserirNaLista(Lista lista){
+    this->listaRelacoes[tamanhoListaRelacoes] = lista;
+    tamanhoListaRelacoes++;
+};
+
+void StringArray:: printArray(){
     for(int i = 0; i < tamanho; i++){
-        vizinhos[i] = 0;
+        cout<< i + 1<<": "<<strings[i]<<endl;
     }
-    populado = 0;
+    cout<<endl;
 };
 
-void Grafo:: printGrafo() {
-    int tamanhoGrafo = tamanho;
-    for(int i = 0; i < tamanhoGrafo; i++){
-        cout<<" \nvértice "<<i<<+ " aponta: "<<vizinhos[i];
-    }
-};
-
-class Vetor {
-    public:
-        int array[100];
-        int topo;
-};
-
-Vetor findChar(char c, string itens){
-    Vetor vetor;
-    for(int i = 0; i < 100; i++){
-        vetor.array[i] = -1;
-    }
-    int arrayPos = 0;
-    for(int i = 0; i < itens.length(); i++){
-        if(itens[i] == ' '){
-            vetor.array[arrayPos++] = i;
+Lista StringArray:: handleNumber(string line, int i){
+    Lista lista;
+    int n = line.length();
+    int j = 0;
+    string substring = "";
+    while(j < n){
+        if(line[j] != ' '){
+            substring += line[j];
         }
+        else{
+            int valor = stoi(substring);
+            lista.inserir(valor);
+            substring = "";
+        }
+        j++;
     }
-    vetor.topo = arrayPos;
-    return vetor;
+    if(substring != "" && substring != " "){
+        int valor = stoi(substring);
+        lista.inserir(valor);
+    } 
+    return lista;
 };
 
-int Grafo:: adicionarVertice(int indice, string itens){
-    Vetor vetor = findChar(' ', itens);
-    for(int i = 0; i < vetor.topo; i++){
-        cout<<" "<<vetor.array[i];
+Lista StringArray:: parse(int i){
+    Lista lista;
+    string line = strings[i];
+    if(isNumber(line)){
+        lista = handleNumber(line, i);
     }
-    int inicioNumero = 0;
-    int verticeAdicionado = 0;
-    for(int i = 0; i < vetor.topo; i++){
-        int posicao = vetor.array[i];
-        string miniStr = " ";
-        int tamanho = posicao - inicioNumero;
-        if(tamanho > 1){
-            miniStr = itens.substr(inicioNumero, tamanho);
-            vizinhos[verticeAdicionado++] = stoi(miniStr);
+    return lista;
+};
 
-            inicioNumero = posicao + 1;
-        }
+void Grafo:: parse(StringArray SA){
+    for(int i = 0; i < SA.tamanho; i++){
+        Lista lista = SA.parse(i);
+        this->inserirNaLista(lista);
     }
+};
+
+void Grafo:: printRelacoes(){
+    for(int i = 0; i < this->tamanhoListaRelacoes; i++){
+        cout<<"\n Aresta "<<i + 1<<endl;
+        for(int j = 0; j < this->listaRelacoes[i].tamanho; j++){
+            cout<<this->listaRelacoes[i].lista[j]<<" ";
+        }
+        cout<<endl;
+    }
+    cout<<endl;
+};
+
+int main() {
+    Grafo grafo;
+
+    string firstLine = "";
+    getline(cin, firstLine);
     
+    StringArray lines;
+
+    char nVerticesS = firstLine[0];
+    int nVertices = nVerticesS - '0';
+
+    for(int i = 0; i < nVertices; i++){
+        string line = "";
+        getline(cin, line);
+        lines.add(line);
+    }
+
+    
+    cout<<"\n Número de Vértices e Número de Arestas\n"<<firstLine<<endl;
+    
+    grafo.parse(lines);
+
+    cout<<"\n\n Para quem cada aresta aponta: \n";
+    grafo.printRelacoes();
+
 }
 
-int main()
-{
-    cout<<"Hello World";
+// O aplicativo já lê as entradas e organiza uma tabela com cada entrada por aresta.
+// Preciso organizar o código separando classes de métodos de construtores.
+// Falta implementar o método de ordenação topológica de fato, com os dados já disponibilizados na tabela.
 
-    int size = 0;
-    cout<<"Qual será o tamanho do grafo? ";
-    cin>>size;
-    
-    Grafo grafo(size);
-    
-    for(int i = 0; i < size; i++){
-        cout<<"\nMe fala os vizinhos do vértice "<<i<<": ";
-        string meusVizinhos = " ";
-        cin>>meusVizinhos;
-        grafo.adicionarVertice(i, meusVizinhos);
-    }
-    
-    grafo.printGrafo();
-    return 0;
-}
+/* 
+Estou lendo as entradas com 3 grafos, em arquivos grafo1.txt, grafo2.txt e grafo3.txt, usando .\ordtop < grafo...txt
 
-// Não funciona mas é um processo!!
+ - grafo3.txt: 
+
+        "6 10
+        2 3 4
+        3
+        \n
+        2 3
+        1 4
+        3 4"
+
+*/
