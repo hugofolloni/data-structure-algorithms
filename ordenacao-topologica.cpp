@@ -35,8 +35,26 @@ class Grafo {
         Grafo();
         void parse(StringArray SA);
         void printRelacoes();
+        void findGraus();
+        int grausEntrada[];
+        void reduzirGrau();
+        bool isAllZero();
 };
 
+void Grafo:: findGraus(){
+    for(int i = 0; i < tamanhoListaRelacoes; i++){
+        int vertice = i + 1;
+        int grau = 0;
+        for(int k = 0; k < tamanhoListaRelacoes; k++){
+            for(int j = 0; j < listaRelacoes[k].tamanho; j++){
+                if(listaRelacoes[k].lista[j] == vertice){
+                    grau++;
+                }
+            }
+        }
+        cout<<"Vertice "<<i + 1<<" tem grau "<<grau<<endl;
+    }
+};
 
 Lista:: Lista(){
     tamanho = 0;
@@ -124,6 +142,30 @@ void Grafo:: printRelacoes(){
     cout<<endl;
 };
 
+bool Grafo:: isAllZero(){
+    for(int i = 0; i < nVertices; i++){
+        if(grausEntrada[i] != 0){
+            return false;
+        }
+    }
+    return true;
+}
+
+void Grafo:: reduzirGrau(){
+    for(int i = 0; i < nVertices; i++){
+        int grauVerticeAnalisado = grausEntrada[i];
+        if(grauVerticeAnalisado == 0){
+            grausEntrada[i] == -1;
+            for(int j = 0; j < listaRelacoes[i].tamanho; j++){
+                int verticeAMudar = listaRelacoes[i].lista[j];
+                grausEntrada[verticeAMudar] -= 1;
+                cout<<"Reduzi o grau de entrada de "<<verticeAMudar<<endl;
+            }
+        }
+    }
+}
+
+
 int main() {
     Grafo grafo;
 
@@ -148,18 +190,24 @@ int main() {
 
     cout<<"\n\n Para quem cada aresta aponta: \n";
     grafo.printRelacoes();
-
+    
+    grafo.findGraus();
+    
+    while(!grafo.isAllZero()){
+        grafo.reduzirGrau();
+    }
+    
+    grafo.findGraus();
 }
 
 // O aplicativo já lê as entradas e organiza uma tabela com cada entrada por aresta.
 // Preciso organizar o código separando classes de métodos de construtores.
-// Falta implementar o método de ordenação topológica de fato, com os dados já disponibilizados na tabela.
+
+// Não está reduzindo grau...
 
 /* 
 Estou lendo as entradas com 3 grafos, em arquivos grafo1.txt, grafo2.txt e grafo3.txt, usando .\ordtop < grafo...txt
-
  - grafo3.txt: 
-
         "6 10
         2 3 4
         3
@@ -167,5 +215,4 @@ Estou lendo as entradas com 3 grafos, em arquivos grafo1.txt, grafo2.txt e grafo
         2 3
         1 4
         3 4"
-
 */
