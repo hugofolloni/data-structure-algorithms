@@ -25,6 +25,18 @@ class StringArray {
         Lista parse(int i);
         Lista handleNumber(string line, int i);
 };
+
+class grausDeEntrada {
+    public: 
+        int tamanho;
+        grausDeEntrada();
+        int graus[100];
+        void printGraus();
+};
+
+grausDeEntrada:: grausDeEntrada(){
+    this->tamanho = 0;
+};
 class Grafo {
     public:
         int nVertices;
@@ -35,13 +47,30 @@ class Grafo {
         Grafo();
         void parse(StringArray SA);
         void printRelacoes();
-        void findGraus();
-        int grausEntrada[];
-        void reduzirGrau();
-        bool isAllZero();
+        void findGraus(grausDeEntrada& g);
+        void reduzirGrau(grausDeEntrada& g);
+        bool isAllZero(grausDeEntrada g);
+        int listaOrdenada[100];
+        void adicionarNaListaOrdenada(int valor);
+        int tamanhoListaOrdenada;
+        void printListaOrdenada();
 };
 
-void Grafo:: findGraus(){
+void Grafo:: printListaOrdenada(){
+    cout<<"O grafo ordenado ficou: ";
+    for(int i = 0; i < this->tamanhoListaOrdenada; i++){
+        cout << this->listaOrdenada[i] << " ";
+    }
+    cout << endl;
+}
+
+void Grafo:: adicionarNaListaOrdenada(int valor){
+    listaOrdenada[tamanhoListaOrdenada] = valor;
+    tamanhoListaOrdenada++;
+};
+
+
+void Grafo:: findGraus(grausDeEntrada& g){
     for(int i = 0; i < tamanhoListaRelacoes; i++){
         int vertice = i + 1;
         int grau = 0;
@@ -52,7 +81,8 @@ void Grafo:: findGraus(){
                 }
             }
         }
-        cout<<"Vertice "<<i + 1<<" tem grau "<<grau<<endl;
+        g.graus[i] = grau;
+        g.tamanho++;
     }
 };
 
@@ -69,6 +99,7 @@ Grafo:: Grafo(){
     this->nArestas = 0;
     this->nVertices = 0;
     this->tamanhoListaRelacoes = 0;
+    this->tamanhoListaOrdenada = 0;
 };
 
 StringArray:: StringArray(){
@@ -142,28 +173,36 @@ void Grafo:: printRelacoes(){
     cout<<endl;
 };
 
-bool Grafo:: isAllZero(){
-    for(int i = 0; i < nVertices; i++){
-        if(grausEntrada[i] != 0){
-            return false;
+bool Grafo:: isAllZero(grausDeEntrada g){
+    bool notZero = true;
+    for(int i = 0; i < tamanhoListaRelacoes; i++){
+        if(g.graus[i] > 0){
+            notZero = false;
         }
     }
-    return true;
-}
+    return notZero;
+};
 
-void Grafo:: reduzirGrau(){
-    for(int i = 0; i < nVertices; i++){
-        int grauVerticeAnalisado = grausEntrada[i];
+void grausDeEntrada:: printGraus(){
+    for(int i = 0; i < tamanho; i++){
+        cout<<"Grau de entrada do vertice "<<i + 1<<": "<<graus[i]<<endl;
+    }
+    cout<<endl;
+};
+
+void Grafo:: reduzirGrau(grausDeEntrada& g){
+    for(int i = 0; i < tamanhoListaRelacoes; i++){
+        int grauVerticeAnalisado = g.graus[i];
         if(grauVerticeAnalisado == 0){
-            grausEntrada[i] == -1;
+            g.graus[i] = -1;
+            adicionarNaListaOrdenada(i + 1);
             for(int j = 0; j < listaRelacoes[i].tamanho; j++){
-                int verticeAMudar = listaRelacoes[i].lista[j];
-                grausEntrada[verticeAMudar] -= 1;
-                cout<<"Reduzi o grau de entrada de "<<verticeAMudar<<endl;
+                int vertice = listaRelacoes[i].lista[j];
+                g.graus[vertice - 1]--;
             }
         }
     }
-}
+};
 
 
 int main() {
@@ -183,21 +222,17 @@ int main() {
         lines.add(line);
     }
 
+    grausDeEntrada graus;
     
-    cout<<"\n Número de Vértices e Número de Arestas\n"<<firstLine<<endl;
     
     grafo.parse(lines);
-
-    cout<<"\n\n Para quem cada aresta aponta: \n";
-    grafo.printRelacoes();
+    grafo.findGraus(graus);;
     
-    grafo.findGraus();
-    
-    while(!grafo.isAllZero()){
-        grafo.reduzirGrau();
+    while(!grafo.isAllZero(graus)){
+        grafo.reduzirGrau(graus);
     }
-    
-    grafo.findGraus();
+
+    grafo.printListaOrdenada();
 }
 
 // O aplicativo já lê as entradas e organiza uma tabela com cada entrada por aresta.
@@ -208,11 +243,11 @@ int main() {
 /* 
 Estou lendo as entradas com 3 grafos, em arquivos grafo1.txt, grafo2.txt e grafo3.txt, usando .\ordtop < grafo...txt
  - grafo3.txt: 
-        "6 10
-        2 3 4
-        3
-        \n
-        2 3
-        1 4
-        3 4"
+"6 10
+2 3 4
+3
+\n
+2 3
+1 4
+3 4"
 */
