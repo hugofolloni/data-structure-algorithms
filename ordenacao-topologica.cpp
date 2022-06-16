@@ -1,12 +1,12 @@
+// Aluno: Hugo Folloni Guarilha
+// DRE: 121085854
+
 #include <iostream>
 #include <algorithm>
 
 using namespace std;
 
-bool isNumber(string s){
-    return std::any_of(s.begin(), s.end(), ::isdigit);
-}
-
+// Classes
 class Lista {
     public:
         int lista[100];
@@ -26,51 +26,55 @@ class StringArray {
         Lista handleNumber(string line, int i);
 };
 
-class grausDeEntrada {
+class GrausDeEntrada {
     public: 
         int tamanho;
-        grausDeEntrada();
+        GrausDeEntrada();
         int graus[100];
         void printGraus();
 };
 
-grausDeEntrada:: grausDeEntrada(){
-    this->tamanho = 0;
-};
 class Grafo {
     public:
-        int nVertices;
-        int nArestas;
         Lista listaRelacoes[100];
         int tamanhoListaRelacoes;
         void inserirNaLista(Lista lista);
         Grafo();
         void parse(StringArray SA);
         void printRelacoes();
-        void findGraus(grausDeEntrada& g);
-        void reduzirGrau(grausDeEntrada& g);
-        bool isAllZero(grausDeEntrada g);
+        void findGraus(GrausDeEntrada& g);
+        void reduzirGrau(GrausDeEntrada& g);
+        bool isAllZero(GrausDeEntrada g);
         int listaOrdenada[100];
         void adicionarNaListaOrdenada(int valor);
         int tamanhoListaOrdenada;
         void printListaOrdenada();
 };
 
-void Grafo:: printListaOrdenada(){
-    cout<<"O grafo ordenado ficou: ";
-    for(int i = 0; i < this->tamanhoListaOrdenada; i++){
-        cout << this->listaOrdenada[i] << " ";
-    }
-    cout << endl;
-}
-
-void Grafo:: adicionarNaListaOrdenada(int valor){
-    listaOrdenada[tamanhoListaOrdenada] = valor;
-    tamanhoListaOrdenada++;
+// Construtores 
+GrausDeEntrada:: GrausDeEntrada(){
+    this->tamanho = 0;
 };
 
+Lista:: Lista(){
+    tamanho = 0;
+};
 
-void Grafo:: findGraus(grausDeEntrada& g){
+Grafo:: Grafo(){
+    this->tamanhoListaRelacoes = 0;
+    this->tamanhoListaOrdenada = 0;
+};
+
+StringArray:: StringArray(){
+    this->tamanho = 0;
+};
+
+// Métodos
+bool isNumber(string s){
+    return std::any_of(s.begin(), s.end(), ::isdigit);
+}
+
+void Grafo:: findGraus(GrausDeEntrada& g){
     for(int i = 0; i < tamanhoListaRelacoes; i++){
         int vertice = i + 1;
         int grau = 0;
@@ -86,24 +90,22 @@ void Grafo:: findGraus(grausDeEntrada& g){
     }
 };
 
-Lista:: Lista(){
-    tamanho = 0;
+void Grafo:: adicionarNaListaOrdenada(int valor){
+    listaOrdenada[tamanhoListaOrdenada] = valor;
+    tamanhoListaOrdenada++;
 };
+
+void Grafo:: printListaOrdenada(){
+    cout<<"O grafo ordenado ficou: ";
+    for(int i = 0; i < this->tamanhoListaOrdenada; i++){
+        cout << this->listaOrdenada[i] << " ";
+    }
+    cout << endl;
+}
 
 void Lista::inserir(int valor){
     lista[tamanho] = valor;
     tamanho++;
-};
-
-Grafo:: Grafo(){
-    this->nArestas = 0;
-    this->nVertices = 0;
-    this->tamanhoListaRelacoes = 0;
-    this->tamanhoListaOrdenada = 0;
-};
-
-StringArray:: StringArray(){
-    this->tamanho = 0;
 };
 
 void StringArray:: add(string c){
@@ -173,7 +175,7 @@ void Grafo:: printRelacoes(){
     cout<<endl;
 };
 
-bool Grafo:: isAllZero(grausDeEntrada g){
+bool Grafo:: isAllZero(GrausDeEntrada g){
     bool notZero = true;
     for(int i = 0; i < tamanhoListaRelacoes; i++){
         if(g.graus[i] > 0){
@@ -183,14 +185,14 @@ bool Grafo:: isAllZero(grausDeEntrada g){
     return notZero;
 };
 
-void grausDeEntrada:: printGraus(){
+void GrausDeEntrada:: printGraus(){
     for(int i = 0; i < tamanho; i++){
         cout<<"Grau de entrada do vertice "<<i + 1<<": "<<graus[i]<<endl;
     }
     cout<<endl;
 };
 
-void Grafo:: reduzirGrau(grausDeEntrada& g){
+void Grafo:: reduzirGrau(GrausDeEntrada& g){
     for(int i = 0; i < tamanhoListaRelacoes; i++){
         int grauVerticeAnalisado = g.graus[i];
         if(grauVerticeAnalisado == 0){
@@ -204,15 +206,13 @@ void Grafo:: reduzirGrau(grausDeEntrada& g){
     }
 };
 
-
 int main() {
     Grafo grafo;
+    GrausDeEntrada graus;
+    StringArray lines;
 
     string firstLine = "";
     getline(cin, firstLine);
-    
-    StringArray lines;
-
     char nVerticesS = firstLine[0];
     int nVertices = nVerticesS - '0';
 
@@ -222,11 +222,8 @@ int main() {
         lines.add(line);
     }
 
-    grausDeEntrada graus;
-    
-    
     grafo.parse(lines);
-    grafo.findGraus(graus);;
+    grafo.findGraus(graus);
     
     while(!grafo.isAllZero(graus)){
         grafo.reduzirGrau(graus);
@@ -234,20 +231,3 @@ int main() {
 
     grafo.printListaOrdenada();
 }
-
-// O aplicativo já lê as entradas e organiza uma tabela com cada entrada por aresta.
-// Preciso organizar o código separando classes de métodos de construtores.
-
-// Não está reduzindo grau...
-
-/* 
-Estou lendo as entradas com 3 grafos, em arquivos grafo1.txt, grafo2.txt e grafo3.txt, usando .\ordtop < grafo...txt
- - grafo3.txt: 
-"6 10
-2 3 4
-3
-\n
-2 3
-1 4
-3 4"
-*/
