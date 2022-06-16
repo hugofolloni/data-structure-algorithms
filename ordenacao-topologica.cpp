@@ -74,6 +74,16 @@ bool isNumber(string s){
     return std::any_of(s.begin(), s.end(), ::isdigit);
 }
 
+int getNumeroDeVertices(string line){
+    int i = 0;
+    string numeroEmString = "";
+    while(line[i] != ' '){
+        numeroEmString += line[i];
+        i++;
+    }
+    return stoi(numeroEmString);
+};
+
 void Grafo:: findGraus(GrausDeEntrada& g){
     for(int i = 0; i < tamanhoListaRelacoes; i++){
         int vertice = i + 1;
@@ -96,7 +106,6 @@ void Grafo:: adicionarNaListaOrdenada(int valor){
 };
 
 void Grafo:: printListaOrdenada(){
-    cout<<"O grafo ordenado ficou: ";
     for(int i = 0; i < this->tamanhoListaOrdenada; i++){
         cout << this->listaOrdenada[i] << " ";
     }
@@ -178,7 +187,7 @@ void Grafo:: printRelacoes(){
 bool Grafo:: isAllZero(GrausDeEntrada g){
     bool notZero = true;
     for(int i = 0; i < tamanhoListaRelacoes; i++){
-        if(g.graus[i] > 0){
+        if(g.graus[i] > -1){
             notZero = false;
         }
     }
@@ -213,8 +222,7 @@ int main() {
 
     string firstLine = "";
     getline(cin, firstLine);
-    char nVerticesS = firstLine[0];
-    int nVertices = nVerticesS - '0';
+    int nVertices = getNumeroDeVertices(firstLine);
 
     for(int i = 0; i < nVertices; i++){
         string line = "";
