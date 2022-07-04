@@ -213,7 +213,7 @@ int main() {
 
 /* 
 FUNCIONAMENTO: 
-    - Recebe um grafo com as arestas e pesos, e a árvore mínima:
+    - Recebe um grafo com as arestas e pesos, e a árvore mínima (usando union-find):
 
         3-5 0
         6-7 2 
