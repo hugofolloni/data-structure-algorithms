@@ -62,6 +62,8 @@ class Grafo {
         void inserirArvore(Arvore arvore);
         void getSubarvores(Aresta aresta);
         void printSubarvores();
+        bool existeSubarvore(Arvore arvore);
+        void unirSubarvores(ListaArestas lista);
 };
 
 Grafo:: Grafo(){
@@ -77,7 +79,8 @@ void Arvore:: printArvore(){
 
 // AVISO: POR ALGUM MOTIVO ELE TA PRINTANDO O 0-2 NAS ARVORES SUBSEQUENTES, E A SEGUNDA ARVORE TA 0-0, SENDO A PRIMEIRA E A TERCEIRA AS CERTAS (SALVO A FALTA DO 0-2)
 void Grafo:: printSubarvores(){
-    for(int i = 0; i < 10; i++){
+    cout<<this->quantidadeArvores<<endl;
+    for(int i = 0; i < this->quantidadeArvores; i++){
         cout<<"\n Subarvore "<<i + 1<<endl;
         this->subarvores[i].printArvore();
     }
@@ -90,16 +93,54 @@ void Arvore:: inserirCondicionado(Aresta aresta){
     }
 }
 
-void Grafo:: getSubarvores(Aresta aresta){
+bool Grafo:: existeSubarvore(Arvore arvore){
     for(int i = 0; i < this->quantidadeArvores; i++){
-        if(this->subarvores[i].existeNaArvore(aresta.origem) || this->subarvores[i].existeNaArvore(aresta.destino)){
-            this->subarvores[i].inserirCondicionado(aresta);
+        bool igual = true;
+        int maxSize = max(arvore.tamanho, this->subarvores[i].tamanho);
+        for(int j = 0; j < maxSize; j++){
+            if(arvore.arestas[j].origem != this->subarvores[i].arestas[j].origem || arvore.arestas[j].destino != this->subarvores[i].arestas[j].destino){
+                igual = false;
+            }
         }
-        else {
-            Arvore arvore;
-            arvore.inserir(aresta);
-            this->inserirArvore(arvore);
+        if(igual){
+            return true;
         }
+    }
+    return false;
+}
+
+void Grafo:: getSubarvores(Aresta aresta){
+    bool algumVerticeExiste = false;
+    bool existeV1 = false;
+    bool existeV2 = false;
+    int arvoreV1 = -1;
+    int arvoreV2 = -1;
+    for(int i = 0; i < this->quantidadeArvores; i++){
+        for(int j = 0; j < this->subarvores[i].tamanho; j++){
+                if(this->subarvores[i].arestas[j].origem == aresta.origem || this->subarvores[i].arestas[j].destino == aresta.origem){
+                    algumVerticeExiste = true;
+                    existeV1 = true;
+                    arvoreV1 = i;
+                }
+                if(this->subarvores[i].arestas[j].origem == aresta.destino || this->subarvores[i].arestas[j].destino == aresta.destino){
+                    algumVerticeExiste = true;
+                    existeV2 = true;
+                    arvoreV2 = i;
+
+                            
+            }
+        }
+    }
+    if(existeV1 && !existeV2){
+        this->subarvores[arvoreV1].inserirCondicionado(aresta);
+    }
+    if(!existeV1 && existeV2){
+        this->subarvores[arvoreV2].inserirCondicionado(aresta);
+    }
+    if(!existeV1 && !existeV2){
+        Arvore arvore;
+        arvore.inserir(aresta);
+        this->inserirArvore(arvore);
     }
 }
 
@@ -176,6 +217,15 @@ void ListaArestas:: ordenar(){
     }
 }
 
+void Grafo:: unirSubarvores(ListaArestas lista){
+    int pesoLigacao = 1000;
+    int origem = 0;
+    int destino = 0;
+    for(int i = 0; i < this->subarvores[0].tamanho; i++){
+        cout<<this->subarvores[0].arestas[i].origem<<" "<<this->subarvores[0].arestas[i].destino<<endl;
+    }
+    cout<<"\nAresta ligacao: "<<origem<<" "<<destino<<" "<<pesoLigacao<<endl;
+}
 
 int main() {
     ListaArestas listaArestas;
@@ -194,6 +244,7 @@ int main() {
 
     listaArestas.ordenar();
     listaArestas.printLista();
+   
 
     Grafo grafo;
 
@@ -202,13 +253,15 @@ int main() {
 
     grafo.inserirArvore(miniarvore);
 
-    for(int i = 0; i < 10; i++){
-        grafo.getSubarvores(listaArestas.arestas[i]);
+    for(int i = 0; i < listaArestas.tamanho; i++){
         grafo.getSubarvores(listaArestas.arestas[i]);
     }
 
+    cout<<"Aqui voce chega ne filhadaputa"<<endl;
+
+    grafo.unirSubarvores(listaArestas);
+    cout<<grafo.quantidadeArvores<<endl;
     grafo.printSubarvores();
-    cout<<grafo.subarvores->tamanho<<endl;
 }
 
 /* 
