@@ -6,6 +6,7 @@
 
 using namespace std;
 
+// Classes
 class Aresta {
     public: 
         int origem;
@@ -36,8 +37,84 @@ class Arvore {
         void inserirCondicionado(Aresta aresta);
 };
 
+class Grafo {
+    public:
+        Arvore subarvores[100];
+        int quantidadeArvores;
+        Grafo();
+        void inserirArvore(Arvore arvore);
+        void getSubarvores(Aresta aresta);
+        void printSubarvores();
+        bool existeSubarvore(Arvore arvore);
+        void unirSubarvores(ListaArestas lista);
+        void removerArvore(int index);
+};
+
+class ListaAuxiliar {
+    public:
+        int lista[100];
+        int tamanho;
+        ListaAuxiliar();
+        void inserir(int valor);
+        bool existe(int valor);
+        void printListaAuxiliar();
+};
+
+
+// Construtores
+Aresta:: Aresta(){
+    this->origem = 0;
+    this->destino = 0;
+    this->peso = 0;
+};
+
+Aresta:: Aresta(int origem, int destino, int peso){
+    this->origem = origem;
+    this->destino = destino;
+    this->peso = peso;
+};
+
+ListaArestas:: ListaArestas(){
+    this->tamanho = 0;
+};
+
+
 Arvore::Arvore(){
     this->tamanho = 0;
+};
+
+Grafo:: Grafo(){
+    this->quantidadeArvores = 0;
+};
+
+ListaAuxiliar:: ListaAuxiliar(){
+    this->tamanho = 0;
+}
+
+
+// Métodos
+
+void ListaArestas:: inserir(Aresta aresta){
+    this->arestas[this->tamanho] = aresta;
+    this->tamanho++;
+};
+
+void ListaArestas:: printLista(){
+    for(int i = 0; i < this->tamanho; i++){
+        cout << "Aresta: " << this->arestas[i].origem << " " << this->arestas[i].destino << " " << this->arestas[i].peso << endl;
+    }
+};
+
+void ListaArestas:: ordenar(){
+    for(int i = 0; i < this->tamanho; i++){
+        for(int j = 0; j < this->tamanho; j++){
+            if(this->arestas[i].peso < this->arestas[j].peso){
+                Aresta aux = this->arestas[i];
+                this->arestas[i] = this->arestas[j];
+                this->arestas[j] = aux;
+            }
+        }
+    }
 };
 
 void Arvore::inserir(Aresta aresta){
@@ -54,35 +131,9 @@ bool Arvore::existeNaArvore(int valor){
     return false;
 };
 
-class Grafo {
-    public:
-        Arvore subarvores[100];
-        int quantidadeArvores;
-        Grafo();
-        void inserirArvore(Arvore arvore);
-        void getSubarvores(Aresta aresta);
-        void printSubarvores();
-        bool existeSubarvore(Arvore arvore);
-        void unirSubarvores(ListaArestas lista);
-        void removerArvore(int index);
-};
-
-Grafo:: Grafo(){
-    this->quantidadeArvores = 0;
-};
-
 void Arvore:: printArvore(){
     for(int i = 0; i < this->tamanho; i++){
         cout<<this->arestas[i].origem<<"-"<<this->arestas[i].destino<<" ";
-    }
-    cout<<endl;
-};
-
-// AVISO: POR ALGUM MOTIVO ELE TA PRINTANDO O 0-2 NAS ARVORES SUBSEQUENTES, E A SEGUNDA ARVORE TA 0-0, SENDO A PRIMEIRA E A TERCEIRA AS CERTAS (SALVO A FALTA DO 0-2)
-void Grafo:: printSubarvores(){
-    for(int i = 0; i < this->quantidadeArvores; i++){
-        cout<<"\n Subarvore "<<i + 1<<endl;
-        this->subarvores[i].printArvore();
     }
     cout<<endl;
 };
@@ -91,6 +142,14 @@ void Arvore:: inserirCondicionado(Aresta aresta){
     if(!this->existeNaArvore(aresta.destino) || !this->existeNaArvore(aresta.origem)){
         this->inserir(aresta);
     }
+};
+
+void Grafo:: printSubarvores(){
+    for(int i = 0; i < this->quantidadeArvores; i++){
+        cout<<"\n Subarvore "<<i + 1<<endl;
+        this->subarvores[i].printArvore();
+    }
+    cout<<endl;
 };
 
 bool Grafo:: existeSubarvore(Arvore arvore){
@@ -156,107 +215,6 @@ void Grafo:: removerArvore(int index){
     this->quantidadeArvores--;
 };
 
-Aresta:: Aresta(){
-    this->origem = 0;
-    this->destino = 0;
-    this->peso = 0;
-};
-
-Aresta:: Aresta(int origem, int destino, int peso){
-    this->origem = origem;
-    this->destino = destino;
-    this->peso = peso;
-};
-
-ListaArestas:: ListaArestas(){
-    this->tamanho = 0;
-};
-
-void ListaArestas:: inserir(Aresta aresta){
-    this->arestas[this->tamanho] = aresta;
-    this->tamanho++;
-};
-
-void ListaArestas:: printLista(){
-    for(int i = 0; i < this->tamanho; i++){
-        cout << "Aresta: " << this->arestas[i].origem << " " << this->arestas[i].destino << " " << this->arestas[i].peso << endl;
-    }
-};
-
-void handleLine(string line, ListaArestas& listaArestas){
-    string entrada = "";
-    string saida = "";
-    string peso = "";
-    int i = 0;
-    while(line[i] != '-'){
-        entrada += line[i];
-        i++;
-    }
-    i++;
-    while(line[i] != ' '){
-        saida += line[i];
-        i++;
-    }
-    i++;
-    while(i < line.size()){
-        peso += line[i];
-        i++;
-    }
-    int origem = stoi(entrada);
-    int destino = stoi(saida);
-    int pesoAresta = stoi(peso);
-    Aresta aresta(origem, destino, pesoAresta);
-    listaArestas.inserir(aresta);
-};
-
-void ListaArestas:: ordenar(){
-    for(int i = 0; i < this->tamanho; i++){
-        for(int j = 0; j < this->tamanho; j++){
-            if(this->arestas[i].peso < this->arestas[j].peso){
-                Aresta aux = this->arestas[i];
-                this->arestas[i] = this->arestas[j];
-                this->arestas[j] = aux;
-            }
-        }
-    }
-};
-
-class ListaAuxiliar {
-    public:
-        int lista[100];
-        int tamanho;
-        ListaAuxiliar();
-        void inserir(int valor);
-        bool existe(int valor);
-        void printListaAuxiliar();
-};
-
-ListaAuxiliar:: ListaAuxiliar(){
-    this->tamanho = 0;
-}
-
-void ListaAuxiliar:: inserir(int valor){
-    this->lista[this->tamanho] = valor;
-    this->tamanho++;
-}
-
-bool ListaAuxiliar:: existe(int valor){
-    for(int i = 0; i < this->tamanho; i++){
-        if(this->lista[i] == valor){
-            return true;
-        }
-    }
-    return false;
-}
-
-void ListaAuxiliar:: printListaAuxiliar(){
-    for(int i = 0; i < this->tamanho; i++){
-        cout << this->lista[i] << " ";
-    }
-    cout << endl;
-}
-
-
 void Grafo:: unirSubarvores(ListaArestas lista){
     ListaAuxiliar listaAuxiliarVerticeUm;
     ListaAuxiliar listaAuxiliarVerticesResto;
@@ -289,7 +247,6 @@ void Grafo:: unirSubarvores(ListaArestas lista){
         }
     }
 
-
     for(int i = 0; i < listaAuxiliarVerticeUm.tamanho; i++){
         for(int j = 0; j < listaAuxiliarVerticesResto.tamanho; j++){
             for(int k = 0; k < lista.tamanho; k++){
@@ -320,7 +277,57 @@ void Grafo:: unirSubarvores(ListaArestas lista){
     this->removerArvore(subarvore);
 };
 
+void ListaAuxiliar:: inserir(int valor){
+    this->lista[this->tamanho] = valor;
+    this->tamanho++;
+}
+
+bool ListaAuxiliar:: existe(int valor){
+    for(int i = 0; i < this->tamanho; i++){
+        if(this->lista[i] == valor){
+            return true;
+        }
+    }
+    return false;
+}
+
+void ListaAuxiliar:: printListaAuxiliar(){
+    for(int i = 0; i < this->tamanho; i++){
+        cout << this->lista[i] << " ";
+    }
+    cout << endl;
+}
+
+// Funções
+void handleLine(string line, ListaArestas& listaArestas){
+    string entrada = "";
+    string saida = "";
+    string peso = "";
+    int i = 0;
+    while(line[i] != '-'){
+        entrada += line[i];
+        i++;
+    }
+    i++;
+    while(line[i] != ' '){
+        saida += line[i];
+        i++;
+    }
+    i++;
+    while(i < line.size()){
+        peso += line[i];
+        i++;
+    }
+    int origem = stoi(entrada);
+    int destino = stoi(saida);
+    int pesoAresta = stoi(peso);
+    Aresta aresta(origem, destino, pesoAresta);
+    listaArestas.inserir(aresta);
+};
+
+
 int main() {
+
     ListaArestas listaArestas;
     Grafo grafo;
 
@@ -349,6 +356,8 @@ int main() {
         grafo.getSubarvores(listaArestas.arestas[i]);
     }
 
+    grafo.printSubarvores();
+
     while(grafo.quantidadeArvores > 1){
         grafo.unirSubarvores(listaArestas);
     }
@@ -356,25 +365,3 @@ int main() {
     grafo.subarvores[0].printArvore();
 
 }
-
-/* 
-FUNCIONAMENTO: 
-    - Recebe um grafo com as arestas e pesos, e a árvore mínima (usando union-find):
-
-        3-5 0
-        6-7 2 
-        4-5 7 
-        0-2 3 
-        0-1 5 
-        3-4 6 
-        1-7 1
-        0-7 4
-        0-6 9 
-        0-5 11
-        4-7 8 
-        4-6 9 
-
-    Gabarito: 5 - 3 - 4 - 7 - (1, 6) 0 - 2 ou inverso
-
-    - Ele ta pegando e achando as arestas mínimas e verificando se ela já tá na lista de arestas
-*/
