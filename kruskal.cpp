@@ -170,7 +170,6 @@ bool Grafo:: existeSubarvore(Arvore arvore){
 };
 
 void Grafo:: getSubarvores(Aresta aresta){
-    bool algumVerticeExiste = false;
     bool existeV1 = false;
     bool existeV2 = false;
     int arvoreV1 = -1;
@@ -178,12 +177,10 @@ void Grafo:: getSubarvores(Aresta aresta){
     for(int i = 0; i < this->quantidadeArvores; i++){
         for(int j = 0; j < this->subarvores[i].tamanho; j++){
                 if(this->subarvores[i].arestas[j].origem == aresta.origem || this->subarvores[i].arestas[j].destino == aresta.origem){
-                    algumVerticeExiste = true;
                     existeV1 = true;
                     arvoreV1 = i;
                 }
                 if(this->subarvores[i].arestas[j].origem == aresta.destino || this->subarvores[i].arestas[j].destino == aresta.destino){
-                    algumVerticeExiste = true;
                     existeV2 = true;
                     arvoreV2 = i;
 
@@ -251,7 +248,7 @@ void Grafo:: unirSubarvores(ListaArestas lista){
     for(int i = 0; i < listaAuxiliarVerticeUm.tamanho; i++){
         for(int j = 0; j < listaAuxiliarVerticesResto.tamanho; j++){
             for(int k = 0; k < lista.tamanho; k++){
-                if(lista.arestas[k].origem == listaAuxiliarVerticeUm.lista[i] && lista.arestas[k].destino == listaAuxiliarVerticesResto.lista[j] || lista.arestas[k].origem == listaAuxiliarVerticesResto.lista[j] && lista.arestas[k].destino == listaAuxiliarVerticeUm.lista[i]){
+                if((lista.arestas[k].origem == listaAuxiliarVerticeUm.lista[i] && lista.arestas[k].destino == listaAuxiliarVerticesResto.lista[j]) || (lista.arestas[k].origem == listaAuxiliarVerticesResto.lista[j] && lista.arestas[k].destino == listaAuxiliarVerticeUm.lista[i])){
                     if(lista.arestas[k].peso < pesoLigacao){
                         pesoLigacao = lista.arestas[k].peso;
                         origem = listaAuxiliarVerticeUm.lista[i];
@@ -325,7 +322,7 @@ void handleLine(string line, ListaArestas& listaArestas){
         i++;
     }
     i++;
-    while(i < line.size()){
+    while(unsigned(i) < line.size()){
         peso += line[i];
         i++;
     }
@@ -337,14 +334,13 @@ void handleLine(string line, ListaArestas& listaArestas){
 };
 
 int handleFirstLine(string line){
-    int quantidadeArestas = 0;
     string quantidadeArestasString = "";
     int i = 0;
     while(line[i] != ' '){
         i++;
     }
     i++;
-    while(i < line.size()){
+    while(unsigned(i) < line.size()){
         quantidadeArestasString += line[i];
         i++;
     }
