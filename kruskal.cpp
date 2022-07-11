@@ -48,6 +48,7 @@ class Grafo {
         bool existeSubarvore(Arvore arvore);
         void unirSubarvores(ListaArestas lista);
         void removerArvore(int index);
+        int getTotalPeso();
 };
 
 class ListaAuxiliar {
@@ -298,13 +299,23 @@ void ListaAuxiliar:: printListaAuxiliar(){
     cout << endl;
 }
 
+int Grafo:: getTotalPeso(){
+    int totalPeso = 0;
+    for(int i = 0; i < this->quantidadeArvores; i++){
+        for(int j = 0; j < this->subarvores[i].tamanho; j++){
+            totalPeso += this->subarvores[i].arestas[j].peso;
+        }
+    }
+    return totalPeso;
+}
+
 // Funções
 void handleLine(string line, ListaArestas& listaArestas){
     string entrada = "";
     string saida = "";
     string peso = "";
     int i = 0;
-    while(line[i] != '-'){
+    while(line[i] != ' '){
         entrada += line[i];
         i++;
     }
@@ -325,27 +336,38 @@ void handleLine(string line, ListaArestas& listaArestas){
     listaArestas.inserir(aresta);
 };
 
+int handleFirstLine(string line){
+    int quantidadeArestas = 0;
+    string quantidadeArestasString = "";
+    int i = 0;
+    while(line[i] != ' '){
+        i++;
+    }
+    i++;
+    while(i < line.size()){
+        quantidadeArestasString += line[i];
+        i++;
+    }
+    return stoi(quantidadeArestasString);
+}
+
 
 int main() {
 
     ListaArestas listaArestas;
     Grafo grafo;
 
-    bool existsLine = true;
-    while(existsLine){
+    string firstLine = "";
+    getline(cin, firstLine);
+    int vertices = handleFirstLine(firstLine);
+
+    for(int i = 0; i < vertices; i++){
         string line = "";
         getline(cin, line);
-        if(line == ""){
-            existsLine = false;
-        }
-        else{
-            handleLine(line, listaArestas);
-        }
+        handleLine(line, listaArestas);
     }
 
     listaArestas.ordenar();
-
-    listaArestas.printLista();
 
     Arvore miniarvore;
     miniarvore.inserir(listaArestas.arestas[0]);
@@ -356,12 +378,10 @@ int main() {
         grafo.getSubarvores(listaArestas.arestas[i]);
     }
 
-    grafo.printSubarvores();
-
     while(grafo.quantidadeArvores > 1){
         grafo.unirSubarvores(listaArestas);
     }
 
-    grafo.subarvores[0].printArvore();
+    cout<<grafo.getTotalPeso()<<endl;
 
 }
