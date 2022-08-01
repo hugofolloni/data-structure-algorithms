@@ -32,7 +32,7 @@ class Hash {
 Hash:: Hash(int key){
     this->key = key;
     for(int i = 0; i < key; i++){
-        values[i] = Node(i);
+        values[i] = Node();
     }
 }
 
@@ -76,12 +76,15 @@ void Hash:: find(int value, bool add){
 void Hash:: print(){
     cout<<"\nMy hash table with key "<<key<<':'<<endl;
     for(int i = 0; i < key; i++){
+        cout<<i<<" [_] ->";
         Node *current = &values[i];
         while(current != NULL){
-            cout<<current->data<<" -> ";
+            if(current->data != -1){
+                cout<<" "<<current->data<<" ->";
+            }
             current = current->next;
         }
-        cout<<"NULL"<<endl;
+        cout<<" NULL"<<endl;
     }
 }
 
